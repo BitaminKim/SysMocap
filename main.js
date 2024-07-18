@@ -14,7 +14,9 @@ const {
     BrowserView,
     ipcMain,
     TouchBar,
+    shell,
     nativeTheme,
+    screen
 } = require("electron");
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar
 const os = require("os");
@@ -63,24 +65,8 @@ if (
 
 // Modules to control application life and create native browser window
 
-var blurBrowserWindow;
 const electronRemoteMain = require("@electron/remote/main");
 electronRemoteMain.initialize();
-
-var isWin11;
-
-// Enable Acrylic Effect on Windows by default
-if (platform === "win32")
-    try {
-        const mica_electron =  require('mica-electron')
-        blurBrowserWindow = mica_electron.MicaBrowserWindow;
-        isWin11 = mica_electron.IS_WINDOWS_11
-    } catch (e) {
-        console.log(e)
-        blurBrowserWindow = BrowserWindow;
-    }
-// if not on Windows, use electron window
-else blurBrowserWindow = BrowserWindow;
 
 global.storagePath = { jsonPath: storage.getStoragePath() };
 global.appInfo = { appVersion: app.getVersion(), appName: app.getName() };
@@ -101,7 +87,8 @@ function createWindow() {
         width: 1180,
         height: 750,
         titleBarStyle: "hidden",
-        trafficLightPosition: { x: 15, y: 15 },
+        trafficLightPosition: { x: 18, y: 15 },
+        fullscreenable: false,
         // titleBarOverlay: {
         //   color: '#fff',
         //   symbolColor: '#111'
@@ -118,7 +105,11 @@ function createWindow() {
 
     // and load the index.html of the app.
     mainWindow.loadFile("mainview/framework.html");
-    nativeTheme.themeSource = "light";
+    if(storage.getItem("useDark")){
+        nativeTheme.themeSource = "dark";
+    }else{
+        nativeTheme.themeSource = "light";
+    }
 
     if (
         storage.getItem("useDMoc") ||
@@ -283,22 +274,23 @@ function createWindow() {
 }
 
 function createModelViewerWindow(args) {
+    // console.log(screen.getPrimaryDisplay().scaleFactor)
     // Create the browser window.
-    var myBrowserWindow = BrowserWindow;
     var addtionalArgs = { backgroundColor: "#eee" };
     if (args.useGlass) {
-        myBrowserWindow = blurBrowserWindow;
         addtionalArgs = {
-            vibrancy: "light",
+            vibrancy: 'hud',
+            backgroundMaterial: 'acrylic',
             backgroundColor: "#00000000",
         };
     }
-    var viewer = new myBrowserWindow({
-        width: 820,
-        height: 540,
+    var viewer = new BrowserWindow({
         titleBarStyle: platform === "darwin" ? "hiddenInset" : "hidden",
         autoHideMenuBar: true,
+        fullscreenable: false,
         show: false,
+        width: 820,
+        height: 540,
         ...addtionalArgs,
         titleBarOverlay: {
             color: args.backgroundColor,
@@ -317,15 +309,9 @@ function createModelViewerWindow(args) {
     viewer.loadURL('about:blank')
     electronRemoteMain.enable(viewer.webContents);
 
-    if (args.useGlass && platform === "win32" && isWin11!==null) {
-        if(isWin11) viewer.setMicaAcrylicEffect(); // Acrylic for windows 11
-        else viewer.setAcrylic(); 
-    }
-
     viewer.webContents.once('dom-ready', () => {
         viewer.show();
         viewer.loadFile("modelview/modelview.html");
-        viewer.setSize(820,540)
     });
 
     // Open the DevTools.
@@ -344,10 +330,11 @@ function createPdfViewerWindow(args) {
         height: 750,
         autoHideMenuBar: true,
         titleBarStyle: "hidden",
+        fullscreenable: false,
         trafficLightPosition: { x: 10, y: 8 },
         titleBarOverlay: {
-            color: "#f9f9fa",
-            symbolColor: "#111111",
+            color: "#0000",
+            symbolColor: nativeTheme.themeSource=='dark'?'#eee':'#111',
         },
         // vibrancy: "dark",
         webPreferences: {
@@ -358,6 +345,18 @@ function createPdfViewerWindow(args) {
             additionalArguments: ["pdfPath", JSON.stringify(args)],
         },
     });
+
+    viewer.webContents.on('will-navigate', (e, url) => {
+        e.preventDefault()
+        shell.openExternal(url)
+    })
+    // 处理 window.open 跳转
+    viewer.webContents.setWindowOpenHandler((data) => {
+        shell.openExternal(data.url)
+        return {
+            action: 'deny'
+        }
+    })
 
     // and load the index.html of the app.
     viewer.loadFile("pdfviewer/viewer.html");
@@ -374,11 +373,12 @@ function createPdfViewerWindow(args) {
 
 function createGpuInfoWindow() {
     // Create the browser window.
-    var viewer = new blurBrowserWindow({
+    var viewer = new BrowserWindow({
         width: 1000,
         height: 600,
         title: "GPU Info",
         autoHideMenuBar: true,
+        fullscreenable: false,
         webPreferences: {
             nodeIntegration: true,
             webviewTag: true,
@@ -390,43 +390,14 @@ function createGpuInfoWindow() {
     // and load the index.html of the app.
     viewer.loadURL("chrome://gpu");
 
-    // Open the DevTools.
-    // viewer.webContents.openDevTools()
-
     // Emitted when the window is closed.
     viewer.on("closed", function () {
         viewer = null;
     });
 }
 
-function showDoc() {
-    var docWindow = new BrowserWindow({
-        width: 1200,
-        height: 700,
-        frame: false,
-        autoHideMenuBar: true,
-        titleBarStyle: "hidden",
-        webPreferences: {
-            nodeIntegration: true,
-            webviewTag: true,
-            contextIsolation: false,
-            enableRemoteModule: true,
-        },
-    });
-
-    // and load the html of the app.
-    docWindow.loadFile("documentview/document.html");
-    electronRemoteMain.enable(docWindow.webContents);
-
-    docWindow.on("closed", function () {
-        docWindow = null;
-    });
-
-    // docWindow.toggleDevTools();
-}
-
 ipcMain.on("openDocument", function (event, arg) {
-    showDoc();
+    createPdfViewerWindow(__dirname + "/pdfs/document.pdf");
 });
 
 ipcMain.on("openModelViewer", function (event, arg) {

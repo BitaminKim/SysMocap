@@ -13,54 +13,66 @@ var remote = null;
 var platform = "web";
 
 var mixamorig = {
-    Hips: {
-        name: "mixamorigHips",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "Hips": {
+        "name": "mixamorigHips",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    Neck: {
-        name: "mixamorigNeck",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "Neck": {
+        "name": "mixamorigNeck",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    Chest: {
-        name: "mixamorigSpine2",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "Chest": {
+        "name": "mixamorigSpine2",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    Spine: {
-        name: "mixamorigSpine",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "Spine": {
+        "name": "mixamorigSpine",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    RightUpperArm: {
-        name: "mixamorigRightArm",
-        func: { fx: "-z", fy: "x", fz: "-y" },
+    "RightUpperArm": {
+        "name": "mixamorigRightArm",
+        "order": "ZXY",
+        "func": { "fx": "-z", "fy": "x", "fz": "-y" }
     },
-    RightLowerArm: {
-        name: "mixamorigRightForeArm",
-        func: { fx: "-z", fy: "x", fz: "-y" },
+    "RightLowerArm": {
+        "name": "mixamorigRightForeArm",
+        "order": "ZXY",
+        "func": { "fx": "-z", "fy": "x", "fz": "-y" }
     },
-    LeftUpperArm: {
-        name: "mixamorigLeftArm",
-        func: { fx: "z", fy: "-x", fz: "-y" },
+    "LeftUpperArm": {
+        "name": "mixamorigLeftArm",
+        "order": "ZXY",
+        "func": { "fx": "z", "fy": "-x", "fz": "-y" }
     },
-    LeftLowerArm: {
-        name: "mixamorigLeftForeArm",
-        func: { fx: "z", fy: "-x", fz: "-y" },
+    "LeftLowerArm": {
+        "name": "mixamorigLeftForeArm",
+        "order": "ZXY",
+        "func": { "fx": "z", "fy": "-x", "fz": "-y" }
     },
-    LeftUpperLeg: {
-        name: "mixamorigLeftUpLeg",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "LeftUpperLeg": {
+        "name": "mixamorigLeftUpLeg",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    LeftLowerLeg: {
-        name: "mixamorigLeftLeg",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "LeftLowerLeg": {
+        "name": "mixamorigLeftLeg",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    RightUpperLeg: {
-        name: "mixamorigRightUpLeg",
-        func: { fx: "-x", fy: "y", fz: "-z" },
+    "RightUpperLeg": {
+        "name": "mixamorigRightUpLeg",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
     },
-    RightLowerLeg: {
-        name: "mixamorigRightLeg",
-        func: { fx: "-x", fy: "y", fz: "-z" },
-    },
+    "RightLowerLeg": {
+        "name": "mixamorigRightLeg",
+        "order": "XYZ",
+        "func": { "fx": "-x", "fy": "y", "fz": "-z" }
+    }
 };
 
 function domBoom(target, onfinish) {
@@ -129,7 +141,7 @@ function domBoom(target, onfinish) {
     );
 }
 
-var darkMode = false;
+var darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 import {
     argbFromHex,
@@ -137,7 +149,7 @@ import {
     themeFromImage,
     sourceColorFromImage,
     applyTheme,
-} from "../utils/material-color-utilities/index.js";
+} from "../node_modules/@material/material-color-utilities/index.js";
 
 function rgba2hex(rgba) {
     rgba = rgba.match(
@@ -174,7 +186,7 @@ if (typeof require != "undefined") {
     // set theme
     document.body.setAttribute(
         "class",
-        "mdui-theme-primary-" +
+        "mdui-theme-layout-auto mdui-theme-primary-" +
             globalSettings.ui.themeColor +
             " mdui-theme-accent-" +
             globalSettings.ui.themeColor
@@ -188,7 +200,7 @@ if (typeof require != "undefined") {
         var hex = rgba2hex(color);
         var theme = await themeFromSourceColor(argbFromHex(hex));
         applyTheme(theme, { target: document.body, dark: darkMode });
-        console.log(theme)
+        // console.log(theme)
         ipcRenderer.send('tabChanged',window.sysmocapApp.tab,document.body.style.getPropertyValue('--md-sys-color-primary'),document.body.style.getPropertyValue('--md-sys-color-primary-container'));
     };
     f();
@@ -230,7 +242,7 @@ if (typeof require != "undefined") {
             updateError:null,
             isLatest:false,
             disableAutoUpdate:localStorage.getItem('disableUpdate'),
-
+            showLine: false
         },
         computed: {
             bg: function () {
@@ -239,7 +251,7 @@ if (typeof require != "undefined") {
                     document.querySelector(".mdui-color-theme"),
                     null
                 ).backgroundColor;
-                console.log(color);
+                // console.log(color);
                 return color;
             },
         },
@@ -267,24 +279,47 @@ if (typeof require != "undefined") {
                     // console.log('settings changed')
                     document.body.setAttribute(
                         "class",
-                        "mdui-theme-primary-" +
+                        "mdui-theme-layout-auto mdui-theme-primary-" +
                             app.settings.ui.themeColor +
                             " mdui-theme-accent-" +
                             app.settings.ui.themeColor
                     );
 
+                    if((remote.nativeTheme.themeSource=='dark')!==app.settings.ui.isDark){
+                        remote.nativeTheme.themeSource = (!app.settings.ui.isDark)?'light':'dark';
+
+                        var modelOnload = async function () {
+                            for (var e of document.querySelectorAll(".my-img")) {
+                                if (e.src.includes("framework.html")) continue;
+                                var theme = await themeFromImage(e);
+                                applyTheme(theme, {
+                                    target: e.parentElement,
+                                    dark: app.settings.ui.isDark,
+                                });
+                            }
+                            for(var e of document.querySelectorAll("div.color-dot")){
+                                e.style.boxShadow = e.computedStyleMap().get('background-color').toString().replace('rgb','rgba').replace(')',', 0.6) 0px 2px 6px')
+                            }
+                        };
+                        setTimeout(()=>modelOnload(),500)
+                        
+                        
+                    }
+
+                    
+
                     var f = async () => {
                         var color = window.getComputedStyle(
-                            document.querySelector(".mdui-color-theme"),
+                            document.querySelector(".mdui-text-color-theme"),
                             null
-                        ).backgroundColor;
+                        ).color;
                         var hex = rgba2hex(color);
                         var theme = await themeFromSourceColor(
                             argbFromHex(hex)
                         );
                         applyTheme(theme, {
                             target: document.body,
-                            dark: darkMode,
+                            dark: app.settings.ui.isDark,
                         });
                         ipcRenderer.send('tabChanged',window.sysmocapApp.tab,document.body.style.getPropertyValue('--md-sys-color-primary'),document.body.style.getPropertyValue('--md-sys-color-primary-container'));
                     };
@@ -292,6 +327,8 @@ if (typeof require != "undefined") {
 
                     saveSettings(app.settings);
                     app.language = languages[app.settings.ui.language];
+
+                    
                 },
                 deep: true,
             },
@@ -302,12 +339,12 @@ if (typeof require != "undefined") {
                 deep: true,
             },
             camera: (newVal, oldVal) => {
-                console.log({
-                    a: "last-choosed-camera",
-                    b: newVal,
-                    c: oldVal,
-                    d: localStorage.getItem("last-choosed-camera"),
-                });
+                // console.log({
+                //     a: "last-choosed-camera",
+                //     b: newVal,
+                //     c: oldVal,
+                //     d: localStorage.getItem("last-choosed-camera"),
+                // });
                 if (oldVal != "")
                     localStorage.setItem("last-choosed-camera", newVal);
             },
@@ -343,6 +380,7 @@ if (typeof require != "undefined") {
     window.sysmocapApp = app;
 
     remote.app.getGPUInfo("complete").then((info) => {
+        // console.log(info)
         app.glRenderer = info.auxAttributes.glRenderer;
     });
 
@@ -363,28 +401,7 @@ if (typeof require != "undefined") {
 
     var inst2 = new mdui.Select("#demo-js-2");
 
-    var lightInput = new mdui.Dialog("#light-js");
-
     var hasInitdLight = false;
-
-    function openLightInput() {
-        lightInput.open();
-        // light effect javascript input
-        if (hasInitdLight) return;
-        var editor = CodeMirror.fromTextArea(
-            document.getElementById("light-input"),
-            {
-                mode: "text/javascript",
-                lineNumbers: true, // 显示行号
-                matchBrackets: true,
-            }
-        );
-
-        editor.on("blur", function () {
-            editor.save();
-        });
-        hasInitdLight = true;
-    }
 
     var isRemoteInit = false;
 
@@ -416,9 +433,10 @@ if (typeof require != "undefined") {
 
     //对拖动释放事件进行处理
     contentDom.ondrop = (e) => {
+        e.preventDefault();
         //console.log(e);
         var filePath = e.dataTransfer.files[0].path.replaceAll("\\", "/");
-        console.log(filePath);
+        // console.log(filePath);
         var strs1 = filePath.split("/");
         var name_ = strs1[strs1.length - 1];
         var name = name_.substr(0, name_.lastIndexOf("."));
@@ -453,7 +471,7 @@ if (typeof require != "undefined") {
     function addRightClick() {
         for (var i of document.querySelectorAll(".model-item-new.user-model")) {
             i.oncontextmenu = function (e) {
-                console.log(e.target);
+                // console.log(e.target);
                 e.preventDefault();
 
                 var target = e.target;
@@ -481,8 +499,9 @@ if (typeof require != "undefined") {
                     );
                     rightclick.onclick();
                 };
-                document.getElementById("btnshow").style.display = "";
-                document.getElementById("btnremove").style.display = "";
+
+                for(var obj of ["btnshow","btnremove","removeline1","removeline0"])
+                    document.getElementById(obj).style.display = "";
 
                 document.getElementById("btnremove").onclick = function () {
                     var modelName = target.querySelector("h2").innerText;
@@ -532,8 +551,8 @@ if (typeof require != "undefined") {
                     e.target.click();
                     rightclick.onclick();
                 };
-                document.getElementById("btnshow").style.display = "none";
-                document.getElementById("btnremove").style.display = "none";
+                for(var obj of ["btnshow","btnremove","removeline1","removeline0"])
+                    document.getElementById(obj).style.display = "none";
 
                 document.getElementById("btndefault").onclick = function () {
                     app.selectModel = JSON.stringify(
@@ -700,12 +719,22 @@ const options = {
 
   window.sysmocapApp.checkingUpdate = false
     // start your app
-    console.log('Check update finish');
+    // console.log('Check update finish');
     //...
   });
 };
 
 window.openInGithub = () =>
     remote.shell.openExternal("https://github.com/xianfei/SysMocap/releases");
+window.openInIEEE = () =>
+    remote.shell.openExternal("https://ieeexplore.ieee.org/document/9974484");
 
 if(!window.sysmocapApp.disableAutoUpdate) window.checkUpdate()
+
+window.addEventListener('scroll',function(e){
+    if(window.pageYOffset > 10){
+        window.sysmocapApp.showLine = true
+    }else{
+        window.sysmocapApp.showLine = false
+    }
+  })

@@ -1,6 +1,8 @@
-![banner](https://user-images.githubusercontent.com/8101613/172903631-e9610e0b-ed46-4c8c-a3f9-3a098265f820.png)
+![banner](https://github.com/xianfei/SysMocap/assets/8101613/58ca8670-5242-4ee4-94fe-8b1be8679843)
 
 <h1 align="center">
+  <img src="https://github.com/xianfei/SysMocap/assets/8101613/adca7a3c-bdb2-4bda-af26-7ef9ba218c4c" align="center" height="128px" width="128px">
+  
 SysMocap
 </h1>
 
@@ -26,17 +28,18 @@ English Version | <a href="./README.zh-cn.md">中文版本</a>
 
 A cross-platform real-time video-driven motion capture and 3D virtual character rendering system for VTuber/Live/AR/VR.
 
-Available for Windows, macOS (packaged) & Linux (source code only)
+Available for Windows, macOS (including Apple Silicon & Intel) & Linux (source code only)
 
-[Download Now](https://github.com/xianfei/SysMocap/releases) (zipped, without installation)
+[Download Now](https://github.com/xianfei/SysMocap/releases) 
 
-(This is a multi-language software, including English. )
+(This is a multi-language software, including English and Chinese. )
 
 ### Highlights
 
-🌟 Beautiful GUI with Material Design 3 Color System
+🌟 Beautiful GUI with Material Design 3 Color System, with Dark Mode supported.
 
 ![UI](https://user-images.githubusercontent.com/8101613/213859221-0297a443-7df3-493e-b8e0-c1b439791fcf.jpg)
+![UI-dark](https://github.com/xianfei/SysMocap/assets/8101613/5a4ee656-9431-4518-b80e-d5956f8712c0)
 
 🌟 Easy to used. You can import 3D models just with drags.
 
@@ -60,7 +63,7 @@ https://user-images.githubusercontent.com/8101613/167257906-596919a5-4c0e-4795-8
 
 ![Full-body-animotion](https://user-images.githubusercontent.com/8101613/173759813-4f0d4540-abab-41dd-b343-5fc5b9be4840.png)
 
-🌟 Support Auto Skeleton Detection for All VRM files and Mixamo Format FBX files
+🌟 Support Auto Skeleton Detection for All VRM files (including VRM 0.x and VRM 1.0) and Mixamo Format FBX files
 
 ![fbx-mixamo-animotion](https://user-images.githubusercontent.com/8101613/173759682-f38c80f8-8c9a-407d-9cec-19a925cae1c0.png)
 
@@ -68,9 +71,9 @@ https://user-images.githubusercontent.com/8101613/167257906-596919a5-4c0e-4795-8
 
 ![bdd-animotion](https://user-images.githubusercontent.com/8101613/173759924-cbc5cc6c-2b96-444d-a070-3d761d6e04bb.png)
 
-🌟 Does not require a discrete graphics card and runs smoothly even on eight-year-old computers (i7-4790k/GTX770/16G RAM)
+🌟 You can use [VRoid Studio](https://vroid.com/en/studio) to create your avatar very easily. Supporting VRM 0.x & 1.0!
 
-🌟 Powered by Mediapipe and Kalidokit with Web Technologies
+<img width="1492" alt="vroid" src="https://github.com/xianfei/SysMocap/assets/8101613/8847e960-3145-4ee5-b512-53ae8ec74901">
 
 ### More Effect Demonstration
 
@@ -94,9 +97,43 @@ https://user-images.githubusercontent.com/8101613/167257906-596919a5-4c0e-4795-8
 
 ![System architecture](https://user-images.githubusercontent.com/8101613/173760568-a409beac-c966-43d6-a11f-11baf091e078.png)
 
-### How to use
+### How to Download prebuilt package (Windows & macOS):
 
-Run on your computer from source code (need lastest Node.js):
+[Download Now](https://github.com/xianfei/SysMocap/releases)
+
+**1. Windows Portable Version**: Simply extract the archive and run `SysMocap.exe`.
+
+- `SysMocap-Windows-x64-<version>.7z`: Windows 64-bit version, suitable for x86_64 processors (AMD, Intel, etc.) running 64-bit Windows 10 & 11.
+
+- `SysMocap-Windows-arm64-<version>.7z`: Windows ARM 64-bit version, suitable for ARM64 processors (such as Qualcomm Snapdragon) running 64-bit Windows 10 & 11.
+
+**2. Windows Installer**: Double-click to install.
+
+<img width="1317" alt="Snipaste_2024-07-07_20-56-11" src="https://github.com/xianfei/SysMocap/assets/8101613/8aa6fda0-5963-41dc-bad9-e28b6a2d7619">
+
+- `SysMocap-Windows-x64-installer-<version>.msi`: Windows 64-bit version, suitable for x86_64 processors (AMD, Intel, etc.) running 64-bit Windows 10 & 11.
+
+- `SysMocap-Windows-arm64-installer-<version>.msi`: Windows ARM 64-bit version, suitable for ARM64 processors (such as Qualcomm Snapdragon) running 64-bit Windows 10 & 11.
+
+**3. macOS DMG Image**: Drag `SysMocap.app` to the Applications folder.
+
+<img width="600" alt="Snipaste_2024-07-07_20-56-11" src="https://github.com/xianfei/SysMocap/assets/8101613/7a47820d-5d7c-421f-822e-d02bad2d6f29">
+
+
+- `SysMocap-macOS-x64-<version>.dmg`: Suitable for Apple computers with Intel chips and Hackintosh devices, running macOS 10.15 or later.
+
+- `SysMocap-macOS-arm64-<version>.dmg`: Suitable for Apple computers with M series chips (Apple Silicon).
+
+**Note for user on macOS:**
+
+- You need set Gatekeeper to Anywhere in System Settings (using `sudo spctl --master-disable`)
+    <img width="478" alt="image" src="https://github.com/xianfei/SysMocap/assets/8101613/7b747e44-789c-4a61-83d7-c8e784a14856">
+
+- If you got `“SysMocap” is damaged and can’t be opened. You should move it to the Trash.`
+  Please run `sudo xattr -r -d com.apple.quarantine /Applications/SysMocap.app` in your terminal
+
+
+### How to run from source code (need lastest Node.js):
 
 ```shell
 git clone https://github.com/xianfei/SysMocap.git
@@ -104,10 +141,6 @@ cd SysMocap
 npm i
 npm start
 ```
-
-### Bugs
-
-- You tell me
 
 ### Notice
 
@@ -144,36 +177,6 @@ npm start
 ### Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=xianfei/SysMocap&type=Date)](https://star-history.com/#xianfei/SysMocap&Date)
-
-### Development progress
-
-#### To-Do
-
-- [x] Settings page and global settings utils
-
-- [x] Add play/pause button and progress bar when mocap from video 
-
-- [x] Support bones binding for glTF/glb
-
-- [x] Support rendering glTF/glb model
-
-- [x] Support binding when bones' name is non-uniformed
-
-- [x] Model library add user's custom 3D model
-
-- [x] Live plug-in / interface for Open Broadcast Software
-
-- [ ] ~~Output video ( using such as libffmpeg )~~
-
-- [ ] ~~Support per-frame rendering without drop frame~~
-
-- [ ] ~~Support c-s architecture for online video mocap ( on cloud )~~
-
-- [x] Support Material Designed 3 Color System (color picking)
-
-- [x] Mocap data forwarding via network
-
-- [x] Adapt for Linux and macOS 
 
 ### Thanks
 

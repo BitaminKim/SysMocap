@@ -5,18 +5,28 @@
  *
  *  https://github.com/xianfei/SysMocap
  *
- *  xianfei 2022.3
+ *  xianfei 2022.3, last modified 2024.7
  */
 
 // import setting utils
 const globalSettings = window.parent.window.sysmocapApp.settings;
 
-var hipRotationOffset = 0.2
+var hipRotationOffset = 0.0;
+
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
+import Stats from "three/addons/libs/stats.module.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+
+// import languages
+const { languages } = require("../utils/language.js");
 
 // set theme
 document.body.setAttribute(
     "class",
-    "mdui-theme-primary-" +
+    "mdui-theme-layout-auto mdui-theme-primary-" +
         globalSettings.ui.themeColor +
         " mdui-theme-accent-" +
         globalSettings.ui.themeColor
@@ -62,7 +72,7 @@ const orbitCamera = new THREE.PerspectiveCamera(35, 16 / 9, 0.1, 1000);
 orbitCamera.position.set(0.0, 1.4, 0.7);
 
 // controls
-const orbitControls = new THREE.OrbitControls(orbitCamera, renderer.domElement);
+const orbitControls = new OrbitControls(orbitCamera, renderer.domElement);
 orbitControls.screenSpacePanning = true;
 orbitControls.target.set(0.0, 1.4, 0.0);
 orbitControls.update();
@@ -105,22 +115,32 @@ var skeletonHelper;
 
 // my_server.startServer(parseInt(globalSettings.forward.port), modelPath);
 
-const light = new THREE.AmbientLight(0xffffff, 0.8);
-light.position.set(10.0, 10.0, -10.0).normalize();
-scene.add(light);
-var light2 = new THREE.DirectionalLight(0xffffff, 1);
-light2.position.set(0, 3, -2);
-light2.castShadow = true;
-scene.add(light2);
+// light
+var light0 = new THREE.DirectionalLight(0xffffff, Math.PI);
+light0.position.set(1.0, 1.0, 1.0).normalize();
+scene.add(light0);
+
+if (fileType !== "vrm") {
+    const light = new THREE.AmbientLight(0xffffff, 0.8);
+    light.position.set(10.0, 10.0, -10.0).normalize();
+    scene.add(light);
+    var light2 = new THREE.DirectionalLight(0xffffff, 1);
+    light2.position.set(0, 3, -2);
+    light2.castShadow = true;
+    scene.add(light2);
+}
 
 var initRotation = {};
 
 // Import model from URL, add your own model here
 var loader = null;
 if (fileType == "fbx") {
-    loader = new THREE.FBXLoader();
+    loader = new FBXLoader();
 } else {
-    loader = new THREE.GLTFLoader();
+    loader = new GLTFLoader();
+    loader.register((parser) => {
+        return new VRMLoaderPlugin(parser);
+    });
 }
 // Import Character
 loader.crossOrigin = "anonymous";
@@ -138,14 +158,15 @@ loader.load(
 
         if (fileType == "vrm") {
             // calling these functions greatly improves the performance
-            THREE.VRMUtils.removeUnnecessaryVertices(gltf.scene);
-            THREE.VRMUtils.removeUnnecessaryJoints(gltf.scene);
-
-            THREE.VRM.from(gltf).then((vrm) => {
-                scene.add(vrm.scene);
-                currentVrm = vrm;
-                currentVrm.scene.rotation.y = Math.PI; // Rotate model 180deg to face camera
-            });
+            VRMUtils.removeUnnecessaryVertices(gltf.scene);
+            VRMUtils.removeUnnecessaryJoints(gltf.scene);
+            const vrm = gltf.userData.vrm;
+            scene.add(vrm.scene);
+            if (vrm.meta.metaVersion === "0") {
+                vrm.scene.rotation.y = Math.PI; // Rotate model 180deg to face camera
+            }
+            currentVrm = vrm;
+            window.currentVrm = currentVrm;
         } else {
             skeletonHelper = new THREE.SkeletonHelper(model);
             skeletonHelper.visible = false;
@@ -202,6 +223,13 @@ loader.load(
     (error) => console.error(error)
 );
 
+function capitalizeFirstLetterToLowerCase(str) {
+    if (str.length === 0) {
+        return str;
+    }
+    return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
 // Animate Rotation Helper function
 const rigRotation = (
     name,
@@ -210,16 +238,20 @@ const rigRotation = (
     lerpAmount = 0.3
 ) => {
     if (currentVrm) {
-        const Part = currentVrm.humanoid.getBoneNode(
-            THREE.VRMSchema.HumanoidBoneName[name]
+        const Part = currentVrm.humanoid.getNormalizedBoneNode(
+            capitalizeFirstLetterToLowerCase(name)
         );
         if (!Part) {
             return;
         }
         let euler = new THREE.Euler(
-            rotation.x * dampener,
+            (currentVrm.meta.metaVersion === "1" ? -1 : 1) *
+                rotation.x *
+                dampener,
             rotation.y * dampener,
-            rotation.z * dampener,
+            (currentVrm.meta.metaVersion === "1" ? -1 : 1) *
+                rotation.z *
+                dampener,
             rotation.rotationOrder || "XYZ"
         );
         let quaternion = new THREE.Quaternion().setFromEuler(euler);
@@ -240,16 +272,19 @@ const rigRotation = (
                     z: b.rotation.z,
                 };
             }
-            var bindingFunc = modelObj.binding[name].func;
+            const bindingFunc = modelObj.binding[name].func;
+            const order = modelObj.binding[name].order?.toUpperCase();
             const x = rotation.x * dampener;
             const y = rotation.y * dampener;
             const z = rotation.z * dampener;
+
+            // console.log("rotation.rotationOrder ",rotation.rotationOrder )
 
             let euler = new THREE.Euler(
                 initRotation[name].x + eval(bindingFunc.fx),
                 initRotation[name].y + eval(bindingFunc.fy),
                 initRotation[name].z + eval(bindingFunc.fz),
-                rotation.rotationOrder || "XYZ"
+                order || rotation.rotationOrder || "XYZ"
             );
             let quaternion = new THREE.Quaternion().setFromEuler(euler);
             b.quaternion.slerp(quaternion, lerpAmount); // interpolate
@@ -267,8 +302,8 @@ const rigPosition = (
     lerpAmount = 0.3
 ) => {
     if (currentVrm) {
-        const Part = currentVrm.humanoid.getBoneNode(
-            THREE.VRMSchema.HumanoidBoneName[name]
+        const Part = currentVrm.humanoid.getNormalizedBoneNode(
+            capitalizeFirstLetterToLowerCase(name)
         );
         if (!Part) {
             return;
@@ -309,8 +344,27 @@ const rigFace = (riggedFace) => {
     }
 
     // Blendshapes and Preset Name Schema
-    const Blendshape = currentVrm.blendShapeProxy;
-    const PresetName = THREE.VRMSchema.BlendShapePresetName;
+    const Blendshape = currentVrm.expressionManager;
+    const PresetName = {
+        A: "aa",
+        Angry: "angry",
+        Blink: "blink",
+        BlinkL: "blinkLeft",
+        BlinkR: "blinkRight",
+        E: "ee",
+        Fun: "happy",
+        I: "ih",
+        Joy: "relaxed",
+        Lookdown: "lookDown",
+        Lookleft: "lookLeft",
+        Lookright: "lookRight",
+        Lookup: "lookUp",
+        Neutral: "neutral",
+        O: "oh",
+        Sorrow: "sad",
+        U: "ou",
+        Unknown: "unknown",
+    };
 
     // Simple example without winking. Interpolate based on old blendshape, then stabilize blink with `Kalidokit` helper function.
     // for VRM, 1 is closed, 0 is open.
@@ -388,7 +442,7 @@ const rigFace = (riggedFace) => {
         "XYZ"
     );
     oldLookTarget.copy(lookTarget);
-    currentVrm.lookAt.applyer.lookAt(lookTarget);
+    currentVrm.lookAt.applier.applyYawPitch(lookTarget.y, lookTarget.x);
 };
 
 var positionOffset = {
@@ -418,11 +472,15 @@ const animateVRM = (vrm, results) => {
     // Animate Pose
     if (riggedPose) {
         // rigRotation("Hips", riggedPose.Hips.rotation, 0.7);
-        rigRotation("Hips", {
-            x: riggedPose.Hips.rotation.x ,
-            y: riggedPose.Hips.rotation.y ,
-            z: riggedPose.Hips.rotation.z + hipRotationOffset,
-        }, 0.7);
+        rigRotation(
+            "Hips",
+            {
+                x: riggedPose.Hips.rotation.x,
+                y: riggedPose.Hips.rotation.y,
+                z: riggedPose.Hips.rotation.z + hipRotationOffset,
+            },
+            0.7
+        );
         rigPosition(
             "Hips",
             {
@@ -434,7 +492,7 @@ const animateVRM = (vrm, results) => {
             0.07
         );
 
-        rigRotation("Chest", riggedPose.Spine, 0.25, 0.3);
+        rigRotation("Chest", riggedPose.Chest, 0.25, 0.3);
         rigRotation("Spine", riggedPose.Spine, 0.45, 0.3);
 
         rigRotation("RightUpperArm", riggedPose.RightUpperArm);
@@ -543,10 +601,11 @@ function animate() {
     }
     renderer.render(scene, orbitCamera);
 
-    if(isRecordingStarted)html2canvas(elementToRecord).then(function (canvas) {
-        context.clearRect(0, 0, canvas2d.width, canvas2d.height);
-        context.drawImage(canvas, 0, 0, canvas2d.width, canvas2d.height);
-    });
+    if (isRecordingStarted)
+        html2canvas(elementToRecord).then(function (canvas) {
+            context.clearRect(0, 0, canvas2d.width, canvas2d.height);
+            context.drawImage(canvas, 0, 0, canvas2d.width, canvas2d.height);
+        });
 }
 animate();
 
@@ -563,13 +622,18 @@ window.onMocapData = (data) => {
 };
 
 var app = new Vue({
-    el: "#controller",
+    el: "#vue0",
     data: {
         target: "face",
+        languages: languages[globalSettings.ui.language],
     },
 });
 
 function changeTarget(target) {
+    var zRe = 1;
+    if (currentVrm) {
+        zRe = currentVrm.meta.metaVersion === "1" ? -1 : 1;
+    }
     app.target = target;
     if (target == "face") {
         positionOffset = { x: 0.0, y: 1.0, z: 0.0 };
@@ -577,16 +641,18 @@ function changeTarget(target) {
         positionOffset = {
             x: 0.0,
             y: 1.1,
-            z: 1,
+            z: zRe * 1,
         };
     } else if (target == "full") {
         positionOffset = {
             x: 0.0,
             y: 1.4,
-            z: 2,
+            z: zRe * 2,
         };
     }
 }
+
+window.changeTarget = changeTarget;
 
 // keyborad control camera position
 document.addEventListener("keydown", (event) => {
@@ -609,12 +675,12 @@ document.addEventListener("keydown", (event) => {
             positionOffset.y -= step;
             break;
         case "r":
-            if(isRecordingStarted){
-                stopRecording()
+            if (isRecordingStarted) {
+                stopRecording();
                 document.getElementById("recording").style.display = "none";
-            }else{
-                startRecording()
-                document.getElementById("recording").style.display = ""
+            } else {
+                startRecording();
+                document.getElementById("recording").style.display = "";
             }
     }
 });
@@ -625,7 +691,6 @@ if (localStorage.getItem("useCamera") !== "camera") {
 
 var contentDom = document.querySelector("#model");
 
-//阻止相关事件默认行为
 contentDom.ondragcenter =
     contentDom.ondragover =
     contentDom.ondragleave =
@@ -633,7 +698,6 @@ contentDom.ondragcenter =
             return false;
         };
 
-//对拖动释放事件进行处理
 contentDom.ondrop = (e) => {
     //console.log(e);
     var filePath = e.dataTransfer.files[0].path.replaceAll("\\", "/");
@@ -652,19 +716,19 @@ canvas2d.width = elementToRecord.clientWidth;
 canvas2d.height = elementToRecord.clientHeight;
 
 var recorder = new RecordRTC(canvas2d, {
-    type: "canvas"
+    type: "canvas",
 });
 
 function startRecording() {
-    this.disabled = true;
+    // this.disabled = true;
 
     isRecordingStarted = true;
 
     recorder.startRecording();
-};
+}
 
 function stopRecording() {
-    this.disabled = true;
+    // this.disabled = true;
 
     recorder.stopRecording(function () {
         isRecordingStarted = false;
@@ -688,4 +752,4 @@ function stopRecording() {
             link.remove();
         }, 100);
     });
-};
+}

@@ -1,6 +1,8 @@
-![banner](https://user-images.githubusercontent.com/8101613/172903631-e9610e0b-ed46-4c8c-a3f9-3a098265f820.png)
+![banner](https://github.com/xianfei/SysMocap/assets/8101613/58ca8670-5242-4ee4-94fe-8b1be8679843)
 
 <h1 align="center">
+  <img src="https://github.com/xianfei/SysMocap/assets/8101613/adca7a3c-bdb2-4bda-af26-7ef9ba218c4c" align="center" height="128px" width="128px">
+  
 SysMocap
 </h1>
 
@@ -26,9 +28,9 @@ SysMocap
 
 跨平台的实时视频驱动动作捕捉及3D虚拟形象生成系统 for VTuber/Live/AR/VR.
 
-提供用于Windows，macOS的可执行文件包，可在Linux上通过源代码运行
+提供用于Windows，macOS的可执行文件包(包括M系列芯片)，可在Linux上通过源代码运行
 
-[立刻下载](https://github.com/xianfei/SysMocap/releases) (压缩包，无需安装)
+[立刻下载](https://github.com/xianfei/SysMocap/releases)
 
 (这是一个多语言软件，支持中文和英文)
 
@@ -36,9 +38,10 @@ SysMocap
 
 ### 特色
 
-🌟 好看的用户图形界面（得益于Material Design 3自动取色系统）
+🌟 好看的用户图形界面（得益于Material Design 3自动取色系统），且支持深色模式
 
 ![UI](https://user-images.githubusercontent.com/8101613/213859221-0297a443-7df3-493e-b8e0-c1b439791fcf.jpg)
+![UI-dark](https://github.com/xianfei/SysMocap/assets/8101613/5a4ee656-9431-4518-b80e-d5956f8712c0)
 
 🌟 简单易用，只需拖拽即可导入虚拟形象模型
 
@@ -70,11 +73,11 @@ https://user-images.githubusercontent.com/8101613/167257906-596919a5-4c0e-4795-8
 
 ![bdd-animotion](https://user-images.githubusercontent.com/8101613/173759924-cbc5cc6c-2b96-444d-a070-3d761d6e04bb.png)
 
-🌟 无需独立显卡，甚至在八年前的老电脑上都能流畅使用 (i7-4790k/GTX770/16G RAM)
+🌟 你可以使用 [VRoid Studio](https://vroid.com/en/studio) 来创作属于自己的虚拟形象并导入至该系统，同时支持VRM 0.x & 1.0！
 
-🌟 感谢 Mediapipe and Kalidokit 提供技术支持，基于Web 技术开发
+<img width="1492" alt="vroid" src="https://github.com/xianfei/SysMocap/assets/8101613/8847e960-3145-4ee5-b512-53ae8ec74901">
 
-## 更多效果展示
+### 更多效果展示
 
 🌟 面部
 
@@ -96,9 +99,43 @@ https://user-images.githubusercontent.com/8101613/167257906-596919a5-4c0e-4795-8
 
 ![System architecture](https://user-images.githubusercontent.com/8101613/173760568-a409beac-c966-43d6-a11f-11baf091e078.png)
 
-### 如何使用
+### 如何下载该应用程序 (Windows & macOS):
 
-使用源代码运行 (需要最新版 Node.js):
+[立刻下载](https://github.com/xianfei/SysMocap/releases)
+
+版本说明：
+
+**Windows 免安装版本**：解压后直接运行 `SysMocap.exe` 即可
+
+- `SysMocap-Windows-x64-<版本号>.7z`: Windows 64位版本，适用于使用x86_64处理器（AMD、Intel等）64位Windows 10 & 11操作系统
+
+- `SysMocap-Windows-arm64-<版本号>.7z`: Windows ARM 64位版本，适用于使用arm64处理器（高通骁龙等）64位Windows 10 & 11操作系统
+
+**Windows 安装包**：双击安装即可（安装包为英文，软件支持中文）
+
+<img width="1317" alt="Snipaste_2024-07-07_20-56-11" src="https://github.com/xianfei/SysMocap/assets/8101613/8aa6fda0-5963-41dc-bad9-e28b6a2d7619">
+
+- `SysMocap-Windows-x64-installer-<版本号>.msi`: Windows 64位版本，适用于使用x86_64处理器（AMD、Intel等）64位Windows 10 & 11操作系统
+
+- `SysMocap-Windows-arm64-installer-<版本号>.msi`: Windows ARM 64位版本，适用于使用arm64处理器（高通骁龙等）64位Windows 10 & 11操作系统
+
+**macOS DMG镜像**：拖动 `SysMocap.app` 到应用程序文件夹即可
+
+<img width="600" alt="Snipaste_2024-07-07_20-56-11" src="https://github.com/xianfei/SysMocap/assets/8101613/7a47820d-5d7c-421f-822e-d02bad2d6f29">
+
+- `SysMocap-macOS-x64-<版本号>.dmg`: 适用于Intel芯片的苹果电脑及黑苹果设备，macOS 10.15+操作系统
+
+- `SysMocap-macOS-arm64-<版本号>.dmg`: 适用于使用M系列芯片（Apple Silicon）的苹果电脑
+
+**针对macOS用户的额外说明:**
+
+- You need set Gatekeeper to Anywhere in System Settings (在终端中执行 `sudo spctl --master-disable`)
+    <img width="478" alt="image" src="https://github.com/xianfei/SysMocap/assets/8101613/7b747e44-789c-4a61-83d7-c8e784a14856">
+
+- 如果你遇到 `“SysMocap” is damaged and can’t be opened. You should move it to the Trash.`（大概中文是 被损坏 您应该移动到废纸篓），
+  请在终端中执行 `sudo xattr -r -d com.apple.quarantine /Applications/SysMocap.app` 
+
+### 如何使用源代码运行 (需要最新版 Node.js):
 
 ```shell
 git clone https://github.com/xianfei/SysMocap.git
@@ -106,12 +143,6 @@ cd SysMocap
 npm i
 npm start
 ```
-
-或从Release页面下载可执行程序（仅限Windows和macOS）
-
-### Bugs
-
-- 如有请在issue中告知
 
 ### 注意
 
@@ -149,35 +180,6 @@ npm start
 
 [![Star History Chart](https://api.star-history.com/svg?repos=xianfei/SysMocap&type=Date)](https://star-history.com/#xianfei/SysMocap&Date)
 
-### 开发进度
-
-#### To-Do
-
-- [x] Settings page and global settings utils
-
-- [x] Add play/pause button and progress bar when mocap from video 
-
-- [x] Support bones binding for glTF/glb
-
-- [x] Support rendering glTF/glb model
-
-- [x] Support binding when bones' name is non-uniformed
-
-- [x] Model library add user's custom 3D model
-
-- [x] Live plug-in / interface for Open Broadcast Software
-
-- [ ] ~~Output video ( using such as libffmpeg )~~
-
-- [ ] ~~Support per-frame rendering without drop frame~~
-
-- [ ] ~~Support c-s architecture for online video mocap ( on cloud )~~
-
-- [x] Support Material Designed 3 Color System (color picking)
-
-- [x] Mocap data forwarding via network
-
-- [x] Adapt for Linux and macOS 
 
 ### 引用
 
